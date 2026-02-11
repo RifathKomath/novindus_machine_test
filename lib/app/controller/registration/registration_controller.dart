@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:novindus_machine_test/core/service/api.dart';
 import 'package:novindus_machine_test/core/style/colors.dart';
-
+import 'package:novindus_machine_test/shared/widgets/app_toast.dart';
+import '../../../core/service/urls.dart';
+import '../../model/dash_board/patient_get_response.dart';
+import '../../model/registration/get_branch_response.dart';
+import '../../model/registration/get_treatment_response.dart';
 import '../../model/registration/list_model.dart';
 
 class RegistrationController extends GetxController {
+  @override
+  void onInit() {
+    super.onInit();
+    getBranch();
+    getTreatment();
+  }
+
   RxBool isLoading = false.obs;
   final formKey = GlobalKey<FormState>();
   final TextEditingController fullNameCntrl = TextEditingController();
@@ -95,4 +107,54 @@ class RegistrationController extends GetxController {
   void removeCombo(int index) {
     comboList.removeAt(index);
   }
+
+  RxString selectedLocation = "".obs;
+
+  RxList<BranchData> branchList = <BranchData>[].obs;
+  RxString selectedBranchId = "".obs;
+  Rx<BranchData?> selectedBranch = Rx<BranchData?>(null);
+
+  void getBranch() async {
+    try {
+      isLoading.value = true;
+      final response = await Api.call(endPoint: branchGetUrl);
+      if (response.success) {
+        final result = GetBranchResponse.fromJson(response.response).branches;
+        branchList.value = result ?? [];
+      } else {
+        showToast(response.msg);
+      }
+    } catch (e) {
+      print("Error while fetching branches $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  RxList<Treatment> treatmentList = <Treatment>[].obs;
+  RxString selectedTreatmentId = "".obs;
+  Rx<Treatment?> selectedTreatment = Rx<Treatment?>(null);
+
+  void getTreatment() async {
+    try {
+      isLoading.value = true;
+      final response = await Api.call(endPoint: treatmentGetUrl);
+      if (response.success) {
+        final result = GetTreatmentResponse.fromJson(
+          response.response,
+        ).treatments;
+        treatmentList.value = result ?? [];
+      } else {
+        showToast(response.msg);
+      }
+    } catch (e) {
+      print("Error while fetching treatments $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  RxnString selectedHour = RxnString();
+  RxnString selectedMinute = RxnString();
+  RxnString selectedAmPm = RxnString();
 }

@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/instance_manager.dart';
-import 'package:novindus_machine_test/app/controller/dash_board/dash_board_controller.dart';
 import 'package:novindus_machine_test/app/controller/registration/registration_controller.dart';
 import 'package:novindus_machine_test/app/view/registration/treatment_dialog.dart';
 import 'package:novindus_machine_test/core/extensions/margin_extension.dart';
 import 'package:novindus_machine_test/core/style/app_text_style.dart';
 import 'package:novindus_machine_test/core/style/colors.dart';
 import 'package:novindus_machine_test/shared/widgets/app_button.dart';
-import 'package:novindus_machine_test/shared/widgets/app_close_icon.dart';
 import 'package:novindus_machine_test/shared/widgets/common_dropdown.dart';
-
 import '../../../shared/utils/validators.dart';
 import '../../../shared/widgets/app_bar.dart';
 import '../../../shared/widgets/app_text_field.dart';
+import '../../model/registration/get_branch_response.dart';
 import 'widgets/list_card.dart';
 
 class RegistrationView extends StatelessWidget {
@@ -24,13 +21,38 @@ class RegistrationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RegistrationController controller = Get.put(RegistrationController());
+    final List<String> keralaDistricts = [
+      "Thiruvananthapuram",
+      "Kollam",
+      "Pathanamthitta",
+      "Alappuzha",
+      "Kottayam",
+      "Idukki",
+      "Ernakulam",
+      "Thrissur",
+      "Palakkad",
+      "Malappuram",
+      "Kozhikode",
+      "Wayanad",
+      "Kannur",
+      "Kasaragod",
+    ];
+    final List<String> hours12 = List.generate(
+      12,
+      (index) => ((index + 1).toString().padLeft(2, '0')),
+    );
+    final List<String> minutes = List.generate(
+      12,
+      (index) => (index * 5).toString().padLeft(2, '0'),
+    );
+
+
     return Scaffold(
       appBar: commonAppBar(
         context: context,
         isBack: true,
         isbottom: true,
         bottomTitle: "Register",
-        
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -74,10 +96,16 @@ class RegistrationView extends StatelessWidget {
                 ),
                 20.h.hBox,
                 CustomDropdown<String>(
-                  selectedValue: null,
-                  items: [],
+                  selectedValue: controller.selectedLocation.value.isEmpty
+                      ? null
+                      : controller.selectedLocation.value,
+                  items: keralaDistricts,
                   w: double.infinity,
-                  onChanged: (value) {},
+                  onChanged: (value) {
+                    if (value != null) {
+                      controller.selectedLocation.value = value;
+                    }
+                  },
                   hint: "Choose your location",
                   isSelectedValid: true,
                   headingText: "Location",
@@ -85,17 +113,25 @@ class RegistrationView extends StatelessWidget {
                   validator: AppValidators.required,
                 ),
                 20.h.hBox,
-                CustomDropdown<String>(
-                  selectedValue: null,
-                  items: [],
-                  w: double.infinity,
-                  onChanged: (value) {},
-                  hint: "Select the branch",
-                  isSelectedValid: true,
-                  headingText: "Branch",
-                  showHeading: true,
-                  validator: AppValidators.required,
-                ),
+                Obx(() {
+                  return CustomDropdown<BranchData>(
+                    selectedValue: controller.selectedBranch.value,
+                    items: controller.branchList,
+                    itemToString: (branch) => branch.name ?? "",
+                    w: double.infinity,
+                    onChanged: (value) {
+                      controller.selectedBranch.value = value;
+                      controller.selectedBranchId.value =
+                          value?.id?.toString() ?? "";
+                    },
+                    hint: "Select the branch",
+                    isSelectedValid: true,
+                    headingText: "Branch",
+                    showHeading: true,
+                    validator: AppValidators.requiredObject,
+                  );
+                }),
+
                 20.h.hBox,
                 Text(
                   "Treatments",
@@ -109,7 +145,6 @@ class RegistrationView extends StatelessWidget {
                   if (controller.comboList.isEmpty) {
                     return 0.hBox;
                   }
-
                   return Column(
                     children: [
                       10.h.hBox,
@@ -140,8 +175,8 @@ class RegistrationView extends StatelessWidget {
                 10.h.hBox,
                 AppButton(
                   label: "+ Add Treatments",
-
                   onTap: () {
+                    controller.selectedTreatment.value = null;
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -227,34 +262,42 @@ class RegistrationView extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: CustomDropdown<String>(
-                        selectedValue: null,
-                        items: [],
-                        w: double.infinity,
-                        onChanged: (value) {},
-                        hint: "Hour",
-                        isSelectedValid: true,
-                        headingText: "Treatment Time",
-                        showHeading: true,
-                        validator: AppValidators.required,
+                      child: Obx(
+                        () => CustomDropdown<String>(
+                          selectedValue: controller.selectedHour.value,
+                          items: hours12,
+                          w: double.infinity,
+                          hint: "Hour",
+                          headingText: "Treatment Time",
+                          showHeading: true,
+                          isSelectedValid: true,
+                          validator: AppValidators.required,
+                          onChanged: (val) =>
+                              controller.selectedHour.value = val,
+                        ),
                       ),
                     ),
-                    20.w.wBox,
+                    10.w.wBox,
                     Expanded(
-                      child: CustomDropdown<String>(
-                        selectedValue: null,
-                        items: [],
-                        w: double.infinity,
-                        onChanged: (value) {},
-                        hint: "Minutes",
-                        isSelectedValid: true,
-                        headingText: "",
-                        showHeading: true,
-                        validator: AppValidators.required,
+                      child: Obx(
+                        () => CustomDropdown<String>(
+                          selectedValue: controller.selectedMinute.value,
+                          items: minutes,
+                          w: double.infinity,
+                          hint: "Minutes",
+                          headingText: "",
+                          showHeading: true,
+                          isSelectedValid: true,
+                          validator: AppValidators.required,
+                          onChanged: (val) =>
+                              controller.selectedMinute.value = val,
+                        ),
                       ),
                     ),
+                   
                   ],
                 ),
+
                 50.h.hBox,
                 AppButton(
                   label: "Save",

@@ -55,21 +55,25 @@ class BookingCard extends StatelessWidget {
                     color: primaryColor,
                   ),
                   overflow: TextOverflow.ellipsis,
-                ).paddingSymmetricHorizontal(22),
+                ).paddingSymmetricHorizontal(5),
                 8.hBox,
                 Row(
-                  spacing: 10,
+                
                   children: [
-                    customRawText(
-                      svgImage: "cal_icon",
-                      text: date,
+                    Expanded(
+                      child: customRawText(
+                        svgImage: "cal_icon",
+                        text: date,
+                      ),
                     ),
-                    customRawText(
-                      svgImage: "person_icon",
-                      text: staffName,
+                    Expanded(
+                      child: customRawText(
+                        svgImage: "person_icon",
+                        text: staffName,
+                      ),
                     ),
                   ],
-                ).paddingSymmetricHorizontal(22),
+                ).paddingSymmetricHorizontal(5),
               ],
             ),
           ),

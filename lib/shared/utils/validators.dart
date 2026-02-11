@@ -5,4 +5,15 @@ class AppValidators {
     }
     return null;
   }
+
+  static String? requiredObject<T>(
+  T? value, {
+  String message = "Field is required",
+}) {
+  if (value == null) {
+    return message;
+  }
+  return null;
+}
+
 }

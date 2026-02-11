@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:novindus_machine_test/app/view/dash_board/dash_board_view.dart';
 import 'package:novindus_machine_test/app/view/login/login_view.dart';
+import 'package:novindus_machine_test/config.dart';
 import 'package:novindus_machine_test/shared/utils/screen_utils.dart';
+
+import '../../../core/service/shared_pref.dart';
 
 class SplashController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -30,7 +34,13 @@ class SplashController extends GetxController
     animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         Future.delayed(const Duration(milliseconds: 300), () async {
-          Screen.openAsNewPage(LoginView());
+          userDetails = await SharedPref().getUserData();
+          accessToken = await SharedPref().loadAccessToken();
+          if (userDetails == null) {
+            Screen.openAsNewPage(LoginView());
+          } else {
+            Screen.openAsNewPage(DashBoardView());
+          }
         });
       }
     });

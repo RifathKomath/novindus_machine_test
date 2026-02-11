@@ -69,7 +69,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
-  static const double _itemHeight = 70;
+  static const double _itemHeight = 50;
   static const int _maxVisibleItems = 4;
 
   void _toggle(bool open) {
@@ -171,7 +171,10 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>>
                                           color: blackGrey,
                                           fontSize: 12,
                                         ))
-                                  : AppTextStyles.textStyle_500_14,
+                                  :AppTextStyles.textStyle_400_14.copyWith(
+                                          color: blackGrey,
+                                         
+                                        ),
                             ),
                     ),
                     RotationTransition(

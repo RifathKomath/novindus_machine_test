@@ -1,18 +1,33 @@
 import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../model/dash_board/patient_get_response.dart';
+
 class RegistrationInvoicePdf {
-  static Future<Uint8List> generate() async {
+  static Future<Uint8List> generate(Patient patient) async {
     final pdf = pw.Document();
     final svgString = await rootBundle.loadString('assets/images/xl_icon.svg');
-    final svgSignature = await rootBundle.loadString(
-      'assets/images/signature.svg',
-    );
+    final svgSignature =
+        await rootBundle.loadString('assets/images/signature.svg');
+
     final green = PdfColor.fromHex('#006837');
     final textGrey = PdfColor.fromHex('#9A9A9A');
+
+    final details = patient.patientdetailsSet ?? [];
+
+    final bookedOn = patient.createdAt != null
+        ? '${patient.createdAt!.day}/${patient.createdAt!.month}/${patient.createdAt!.year}'
+        : '';
+
+    final treatmentDate = patient.dateNdTime != null
+        ? '${patient.dateNdTime!.day}/${patient.dateNdTime!.month}/${patient.dateNdTime!.year}'
+        : '';
+
+    final treatmentTime = patient.dateNdTime != null
+        ? '${patient.dateNdTime!.hour}:${patient.dateNdTime!.minute.toString().padLeft(2, '0')}'
+        : '';
 
     pdf.addPage(
       pw.Page(
@@ -31,7 +46,7 @@ class RegistrationInvoicePdf {
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  /// HEADER
+              
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
@@ -41,7 +56,7 @@ class RegistrationInvoicePdf {
                         crossAxisAlignment: pw.CrossAxisAlignment.end,
                         children: [
                           pw.Text(
-                            'KUMARAKOM',
+                            patient.branch?.name ?? 'KUMARAKOM',
                             style: pw.TextStyle(
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 10,
@@ -49,16 +64,8 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'Cheepunkal P.O, Kumarakom, Kottayam, Kerala - 686563',
-                            style: pw.TextStyle(
-                              fontSize: 10,
-                              color: textGrey,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          ),
-                          pw.SizedBox(height: 3),
-                          pw.Text(
-                            'e-mail : unknown@gmail.com',
+                            patient.branch?.address ??
+                                'Cheepunkal P.O, Kumarakom, Kottayam, Kerala - 686563',
                             style: pw.TextStyle(
                               fontSize: 10,
                               color: textGrey,
@@ -67,7 +74,7 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'Mob : +91 9876543210',
+                            'e-mail : ${patient.branch?.mail ?? 'unknown@gmail.com'}',
                             style: pw.TextStyle(
                               fontSize: 10,
                               color: textGrey,
@@ -76,16 +83,27 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'GST No : 32AABCU9603R1ZW',
+                            'Mob : ${patient.branch?.phone ?? '+91 9876543210'}',
+                            style: pw.TextStyle(
+                              fontSize: 10,
+                              color: textGrey,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+                          pw.SizedBox(height: 3),
+                          pw.Text(
+                            'GST No : ${patient.branch?.gst ?? '32AABCU9603R1ZW'}',
                             style: pw.TextStyle(fontSize: 9),
                           ),
                         ],
                       ),
                     ],
                   ),
+
                   pw.SizedBox(height: 15),
                   pw.Divider(thickness: 0.7, color: PdfColors.grey400),
                   pw.SizedBox(height: 15),
+
                   pw.Text(
                     'Patient Details',
                     style: pw.TextStyle(
@@ -103,48 +121,51 @@ class RegistrationInvoicePdf {
                           children: [
                             pw.Row(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [_info('Name'), _infoValue('Salin T')],
-                            ),
-                            pw.Row(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                _info('Address'),
-                                _infoValue('Vadakkave, Kozhikode'),
+                                info('Name'),
+                                infoValue(patient.name ?? ''),
                               ],
                             ),
                             pw.Row(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                _info('WhatsApp Number'),
-                                _infoValue('+91 987654321'),
+                                info('Address'),
+                                infoValue(patient.address ?? ''),
+                              ],
+                            ),
+                            pw.Row(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                info('WhatsApp Number'),
+                                infoValue(patient.phone ?? ''),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      //second data container
+
                       pw.Container(
                         child: pw.Column(
                           children: [
                             pw.Row(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                _info('Booked On'),
-                                _infoValue('31/01/2024 | 12:12pm'),
+                                info('Booked On'),
+                                infoValue(bookedOn),
                               ],
                             ),
                             pw.Row(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                _info('Treatment Date'),
-                                _infoValue('21/02/2024'),
+                                info('Treatment Date'),
+                                infoValue(treatmentDate),
                               ],
                             ),
                             pw.Row(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                _info('Treatment Time'),
-                                _infoValue('11:00 am'),
+                                info('Treatment Time'),
+                                infoValue(treatmentTime),
                               ],
                             ),
                           ],
@@ -154,66 +175,77 @@ class RegistrationInvoicePdf {
                   ),
 
                   pw.SizedBox(height: 20),
-
-                  _dottedLine(),
-
+                  dottedLine(),
                   pw.SizedBox(height: 12),
 
                   pw.Container(
                     padding: const pw.EdgeInsets.symmetric(vertical: 6),
                     child: pw.Row(
                       children: [
-                        _tableHeader('Treatment', flex: 3),
-                        _tableHeader('Price'),
-                        _tableHeader('Male'),
-                        _tableHeader('Female'),
-                        _tableHeader('Total'),
+                        tableHeader('Treatment', flex: 3),
+                        tableHeader('Price'),
+                        tableHeader('Male'),
+                        tableHeader('Female'),
+                        tableHeader('Total'),
                       ],
                     ),
                   ),
 
-                  _tableRow('Panchakarma', '230', '4', '4', '2,540'),
-                  _tableRow(
-                    'Njavara Kizhi Treatment',
-                    '230',
-                    '4',
-                    '4',
-                    '2,540',
+                  ...details.map(
+                    (e) => tableRow(
+                      e.treatmentName ?? '',
+                      patient.totalAmount?.toString() ?? '0',
+                      e.male ?? '0',
+                      e.female ?? '0',
+                      patient.totalAmount?.toString() ?? '0',
+                    ),
                   ),
-                  _tableRow('Panchakarma', '230', '4', '6', '2,540'),
 
                   pw.SizedBox(height: 20),
 
-                  /// AMOUNT SUMMARY
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.end,
                     children: [
                       pw.Container(
                         width: 230,
                         padding: const pw.EdgeInsets.all(12),
-
                         child: pw.Column(
                           children: [
-                            _amount('Total Amount', '7,620', bold: true),
-                            _amount('Discount', '500'),
-                            _amount('Advance', '1,200'),
+                            amount(
+                              'Total Amount',
+                              patient.totalAmount?.toString() ?? '0',
+                              bold: true,
+                            ),
+                            amount(
+                              'Discount',
+                              patient.discountAmount?.toString() ?? '0',
+                            ),
+                            amount(
+                              'Advance',
+                              patient.advanceAmount?.toString() ?? '0',
+                            ),
                             pw.SizedBox(height: 5),
-                            _dottedLine(),
+                            dottedLine(),
                             pw.SizedBox(height: 5),
-                            _amount('Balance', '5,920', bold: true),
+                            amount(
+                              'Balance',
+                              patient.balanceAmount?.toString() ?? '0',
+                              bold: true,
+                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
+
                   pw.SizedBox(height: 15),
+
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.end,
                     children: [
                       pw.Container(
                         width: 250,
                         padding: const pw.EdgeInsets.all(12),
-
                         child: pw.Column(
                           children: [
                             pw.Text(
@@ -245,9 +277,8 @@ class RegistrationInvoicePdf {
                   ),
 
                   pw.SizedBox(height: 25),
-
                   pw.Spacer(),
-                  _dottedLine(),
+                  dottedLine(),
                   pw.SizedBox(height: 6),
 
                   pw.Center(
@@ -271,8 +302,8 @@ class RegistrationInvoicePdf {
     return pdf.save();
   }
 
-  /// ---------- HELPERS ----------
-  static pw.Widget _info(String t) {
+
+  static pw.Widget info(String t) {
     return pw.Container(
       width: 130,
       margin: const pw.EdgeInsets.only(bottom: 6),
@@ -283,7 +314,7 @@ class RegistrationInvoicePdf {
     );
   }
 
-  static pw.Widget _infoValue(String v) {
+  static pw.Widget infoValue(String v) {
     return pw.Container(
       width: 130,
       margin: const pw.EdgeInsets.only(bottom: 6),
@@ -298,7 +329,7 @@ class RegistrationInvoicePdf {
     );
   }
 
-  static pw.Widget _tableHeader(String text, {int flex = 1}) {
+  static pw.Widget tableHeader(String text, {int flex = 1}) {
     return pw.Expanded(
       flex: flex,
       child: pw.Text(
@@ -307,12 +338,11 @@ class RegistrationInvoicePdf {
           fontWeight: pw.FontWeight.bold,
           color: PdfColor.fromHex('#006837'),
         ),
-        textAlign: pw.TextAlign.left,
       ),
     );
   }
 
-  static pw.Widget _tableRow(
+  static pw.Widget tableRow(
     String t,
     String p,
     String m,
@@ -321,20 +351,19 @@ class RegistrationInvoicePdf {
   ) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(vertical: 6),
-
       child: pw.Row(
         children: [
-          _cell(t, flex: 3),
-          _cell(p),
-          _cell(m),
-          _cell(f),
-          _cell(total),
+          cell(t, flex: 3),
+          cell(p),
+          cell(m),
+          cell(f),
+          cell(total),
         ],
       ),
     );
   }
 
-  static pw.Widget _cell(String text, {int flex = 1}) {
+  static pw.Widget cell(String text, {int flex = 1}) {
     return pw.Expanded(
       flex: flex,
       child: pw.Text(
@@ -343,12 +372,11 @@ class RegistrationInvoicePdf {
           color: PdfColor.fromHex('#9A9A9A'),
           fontWeight: pw.FontWeight.bold,
         ),
-        textAlign: pw.TextAlign.left,
       ),
     );
   }
 
-  static pw.Widget _amount(String t, String v, {bool bold = false}) {
+  static pw.Widget amount(String t, String v, {bool bold = false}) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 4),
       child: pw.Row(
@@ -367,22 +395,21 @@ class RegistrationInvoicePdf {
     );
   }
 
-  static pw.Widget _dottedLine() {
+  static pw.Widget dottedLine() {
     return pw.LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints?.maxWidth;
-        final dashWidth = 5.0;
-        final dashCount = (width! / (2 * dashWidth)).floor();
-
+        final width = constraints!.maxWidth;
+        final dashCount = (width / 10).floor();
         return pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: List.generate(dashCount, (_) {
-            return pw.Container(
-              width: dashWidth,
+          children: List.generate(
+            dashCount,
+            (_) => pw.Container(
+              width: 5,
               height: 1,
               color: PdfColors.grey400,
-            );
-          }),
+            ),
+          ),
         );
       },
     );

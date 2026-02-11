@@ -31,7 +31,16 @@ class DateFilterChip extends StatelessWidget {
                 style: AppTextStyles.textStyle_400_14,
               ),
               8.w.wBox,
-              Icon(Icons.keyboard_arrow_down, size: 20, color: primaryColor),
+              controller.selectedDate.value != null
+                  ? InkWell(
+                      onTap: controller.clearDate,
+                      child: Icon(Icons.close, size: 18, color: darkRed),
+                    )
+                  : Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: primaryColor,
+                    ),
             ],
           ),
         ),

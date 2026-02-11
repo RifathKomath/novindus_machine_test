@@ -40,9 +40,12 @@ class ComboPackageCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "${index + 1}. $title",
-                style: AppTextStyles.textStyle_500_14.copyWith(fontSize: 18),
+              Expanded(
+                child: Text(
+                  "${index + 1}. $title",
+                  style: AppTextStyles.textStyle_500_14.copyWith(fontSize: 18),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               GestureDetector(onTap: onClose, child: AppCloseIcon()),
             ],

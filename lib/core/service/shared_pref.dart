@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../app/model/login/login_response.dart';
+import '../../config.dart';
+
 class SharedPref {
   SharedPreferences? sharedPref;
 
@@ -28,51 +31,51 @@ class SharedPref {
     }
   }
 
-  // getUserData() async {
-  //   if (sharedPref == null) await init();
-  //   final String? userDataJson = sharedPref?.getString("userdata");
+  getUserData() async {
+    if (sharedPref == null) await init();
+    final String? userDataJson = sharedPref?.getString("userdata");
 
-  //   if (userDataJson == null || 
-  //       userDataJson.isEmpty ||
-  //       userDataJson == "null") {
-  //     return null;
-  //   }
+    if (userDataJson == null || 
+        userDataJson.isEmpty ||
+        userDataJson == "null") {
+      return null;
+    }
 
-  //   try {
-  //     final decoded = jsonDecode(userDataJson);
+    try {
+      final decoded = jsonDecode(userDataJson);
 
-  //     if (decoded == null || decoded is! Map<String, dynamic>) {
-  //       return null;
-  //     }
+      if (decoded == null || decoded is! Map<String, dynamic>) {
+        return null;
+      }
 
-  //     userInfo = User.fromJson(decoded);
-  //     return userInfo;
-  //   } catch (e) {
-  //     print("Error parsing user data: $e");
-  //     return null;
-  //   }
-  // }
+      userDetails = UserDetails.fromJson(decoded);
+      return userDetails;
+    } catch (e) {
+      print("Error parsing user data: $e");
+      return null;
+    }
+  }
 
    
 
-  // Future<bool> saveAccessToken(String token) async {
-  //   if (sharedPref == null) await init();
-  //   accessToken = token;
-  //   return sharedPref!.setString('accessToken', token);
-  // }
+  Future<bool> saveAccessToken(String token) async {
+    if (sharedPref == null) await init();
+    accessToken = token;
+    return sharedPref!.setString('accessToken', token);
+  }
 
-  // Future<String?> loadAccessToken() async {
-  //   if (sharedPref == null) await init();
-  //   final token = sharedPref!.getString('accessToken');
-  //   accessToken = token;
-  //   return token;
-  // }
+  Future<String?> loadAccessToken() async {
+    if (sharedPref == null) await init();
+    final token = sharedPref!.getString('accessToken');
+    accessToken = token;
+    return token;
+  }
 
-  // Future<bool> removeAccessToken() async {
-  //   if (sharedPref == null) await init();
-  //   accessToken = null;
-  //   return sharedPref!.remove('accessToken');
-  // }
+  Future<bool> removeAccessToken() async {
+    if (sharedPref == null) await init();
+    accessToken = null;
+    return sharedPref!.remove('accessToken');
+  }
 
   logout() async {
     if (sharedPref == null) await init();

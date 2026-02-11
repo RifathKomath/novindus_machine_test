@@ -31,7 +31,7 @@ class ApiResponse<T> {
     final String message =
         responseData["message"] ?? responseData["msg"] ?? "";
 
-    final bool isSuccess = responseData["success"] == true;
+    final bool isSuccess = responseData["status"] == true;
 
     dynamic data;
     if (fetchKeyName != null) {
