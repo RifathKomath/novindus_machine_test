@@ -11,15 +11,25 @@ import '../../../shared/utils/validators.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/common_dropdown.dart';
 import '../../controller/registration/registration_controller.dart';
+import '../../model/registration/list_model.dart';
 import 'widgets/quantity_field.dart';
 
 class TreatmentDialog extends StatelessWidget {
-  const TreatmentDialog({super.key});
+  final ComboPackage? comboToEdit;
+  const TreatmentDialog({super.key, this.comboToEdit});
 
   @override
   Widget build(BuildContext context) {
     final RegistrationController controller =
         Get.find<RegistrationController>();
+
+    if (comboToEdit != null) {
+      controller.selectedTreatment.value = controller.treatmentList
+          .firstWhereOrNull((t) => t.id?.toString() == comboToEdit?.id);
+      controller.selectedTreatmentId.value = comboToEdit!.id ?? "";
+      controller.quantity.value = comboToEdit!.maleCount ?? 0;
+      controller.quantity2.value = comboToEdit!.femaleCount ?? 0;
+    }
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadiusGeometry.circular(12),
@@ -99,7 +109,7 @@ class TreatmentDialog extends StatelessWidget {
               AppButton(
                 label: "Save",
                 onTap: () {
-                  controller.addComboPackage("${controller.selectedTreatment.value?.name}");
+                  controller.addComboPackage(comboToEdit: comboToEdit);
                   Screen.close();
                 },
               ),

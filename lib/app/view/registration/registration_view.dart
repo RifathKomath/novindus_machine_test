@@ -45,7 +45,7 @@ class RegistrationView extends StatelessWidget {
       12,
       (index) => (index * 5).toString().padLeft(2, '0'),
     );
-
+    final List<String> amPm = ['AM', 'PM'];
 
     return Scaffold(
       appBar: commonAppBar(
@@ -81,6 +81,7 @@ class RegistrationView extends StatelessWidget {
                   textInputType: TextInputType.number,
                   labelText: "Enter your Whatsapp Number",
                   useHintInsteadOfLabel: true,
+                  maxLength: 10,
                   label: "Whatsapp Number",
                   validator: AppValidators.required,
                 ),
@@ -155,10 +156,21 @@ class RegistrationView extends StatelessWidget {
 
                           return ComboPackageCard(
                             index: index,
-                            title: item.title,
-                            maleCount: item.maleCount,
-                            femaleCount: item.femaleCount,
-                            onEdit: () {},
+                            title: item.name ?? "",
+                            maleCount: item.maleCount ?? 0,
+                            femaleCount: item.femaleCount ?? 0,
+                            onEdit: () {
+                              controller.selectedTreatment.value = controller
+                                  .treatmentList
+                                  .firstWhereOrNull(
+                                    (t) => t.id?.toString() == item.id,
+                                  );
+                              showDialog(
+                                context: context,
+                                builder: (_) =>
+                                    TreatmentDialog(comboToEdit: item),
+                              );
+                            },
                             onClose: () {
                               controller.removeCombo(index);
                             },
@@ -259,6 +271,14 @@ class RegistrationView extends StatelessWidget {
                   ),
                 ),
                 20.h.hBox,
+                Text(
+                  "Treatment Time",
+                  style: AppTextStyles.textStyle_400_14.copyWith(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                15.h.hBox,
                 Row(
                   children: [
                     Expanded(
@@ -268,8 +288,7 @@ class RegistrationView extends StatelessWidget {
                           items: hours12,
                           w: double.infinity,
                           hint: "Hour",
-                          headingText: "Treatment Time",
-                          showHeading: true,
+
                           isSelectedValid: true,
                           validator: AppValidators.required,
                           onChanged: (val) =>
@@ -285,8 +304,7 @@ class RegistrationView extends StatelessWidget {
                           items: minutes,
                           w: double.infinity,
                           hint: "Minutes",
-                          headingText: "",
-                          showHeading: true,
+
                           isSelectedValid: true,
                           validator: AppValidators.required,
                           onChanged: (val) =>
@@ -294,16 +312,36 @@ class RegistrationView extends StatelessWidget {
                         ),
                       ),
                     ),
-                   
+                    10.w.wBox,
+                    Expanded(
+                      child: Obx(
+                        () => CustomDropdown<String>(
+                          selectedValue: controller.selectedAmPm.value,
+                          items: amPm,
+                          w: double.infinity,
+                          hint: "AM/PM",
+
+                          isSelectedValid: true,
+                          validator: AppValidators.required,
+                          onChanged: (val) =>
+                              controller.selectedAmPm.value = val,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
 
                 50.h.hBox,
-                AppButton(
-                  label: "Save",
-                  onTap: () {
-                    if (controller.formKey.currentState!.validate()) {}
-                  },
+                Obx(()=>
+                  AppButton(
+                    label: "Save",
+                    isLoaderBtn: controller.isLoading.value,
+                    onTap: () {
+                      if (controller.formKey.currentState!.validate()) {
+                        controller.registrationSave(context: context);
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

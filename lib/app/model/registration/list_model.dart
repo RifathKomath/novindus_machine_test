@@ -1,11 +1,13 @@
 class ComboPackage {
-  final String title;
-  final int maleCount;
-  final int femaleCount;
+  final String? id;    
+  final String? name;     
+  final int? maleCount;
+  final int? femaleCount;
 
   ComboPackage({
-    required this.title,
-    required this.maleCount,
-    required this.femaleCount,
+    this.id,
+    this.name,
+    this.maleCount,
+    this.femaleCount,
   });
 }
