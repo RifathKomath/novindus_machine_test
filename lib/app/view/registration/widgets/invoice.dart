@@ -56,7 +56,7 @@ class RegistrationInvoicePdf {
                         crossAxisAlignment: pw.CrossAxisAlignment.end,
                         children: [
                           pw.Text(
-                            patient.branch?.name ?? 'KUMARAKOM',
+                            patient.branch?.name ?? '',
                             style: pw.TextStyle(
                               fontWeight: pw.FontWeight.bold,
                               fontSize: 10,
@@ -65,7 +65,7 @@ class RegistrationInvoicePdf {
                           pw.SizedBox(height: 3),
                           pw.Text(
                             patient.branch?.address ??
-                                'Cheepunkal P.O, Kumarakom, Kottayam, Kerala - 686563',
+                                '',
                             style: pw.TextStyle(
                               fontSize: 10,
                               color: textGrey,
@@ -74,7 +74,7 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'e-mail : ${patient.branch?.mail ?? 'unknown@gmail.com'}',
+                            'e-mail : ${patient.branch?.mail ?? ''}',
                             style: pw.TextStyle(
                               fontSize: 10,
                               color: textGrey,
@@ -83,7 +83,7 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'Mob : ${patient.branch?.phone ?? '+91 9876543210'}',
+                            'Mob : ${patient.branch?.phone ?? ''}',
                             style: pw.TextStyle(
                               fontSize: 10,
                               color: textGrey,
@@ -92,7 +92,7 @@ class RegistrationInvoicePdf {
                           ),
                           pw.SizedBox(height: 3),
                           pw.Text(
-                            'GST No : ${patient.branch?.gst ?? '32AABCU9603R1ZW'}',
+                            'GST No : ${patient.branch?.gst ?? ''}',
                             style: pw.TextStyle(fontSize: 9),
                           ),
                         ],
